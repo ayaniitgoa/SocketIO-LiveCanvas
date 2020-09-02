@@ -1,17 +1,36 @@
 const express = require('express');
 const socket = require('socket.io');
+const bodyParser = require('body-parser');
+const { v4: uuid } = require('uuid');
 
 const app = express();
 
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(bodyParser.json());
+
 const PORT = process.env.PORT || 5000;
-app.set('view engline', 'html');
 
-app.use(express.static('public'));
+app.use(express.static('views'));
 
-const files = `${__dirname}\\public`;
+app.get('/', (req, res) => {
+  res.render('draw.ejs');
+});
 
-app.get('/draw', (req, res) => {
-  res.sendFile('draw.html', { root: files });
+app.post('/', (req, res) => {
+  const roomNo = req.body.room;
+  res.redirect(`/draw?room=${roomNo}`);
+  // res.redirect(`/canvaslive?room=${roomNo}`);
+});
+
+app.get('/draw?:room', (req, res) => {
+  const room = req.query.room;
+
+  res.render('roomMsg.ejs', { room });
+});
+
+app.get('/canvaslive?:room', (req, res) => {
+  res.render('canvaslive.ejs');
 });
 
 const server = app.listen(PORT, () => {
